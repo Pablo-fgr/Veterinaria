@@ -12,10 +12,10 @@ namespace Veterinaria.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Dueños",
+                name: "Owners",
                 columns: table => new
                 {
-                    IdDueño = table.Column<int>(type: "int", nullable: false)
+                    IdOwner = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NombreCompleto = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Dni = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
@@ -25,7 +25,7 @@ namespace Veterinaria.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Dueños", x => x.IdDueño);
+                    table.PrimaryKey("PK_Owners", x => x.IdOwner);
                 });
 
             migrationBuilder.CreateTable(
@@ -38,33 +38,64 @@ namespace Veterinaria.Migrations
                     Especie = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Raza = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FechaNacimiento = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IdDueño = table.Column<int>(type: "int", nullable: false)
+                    IdOwner = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Mascotas", x => x.IdMascota);
                     table.ForeignKey(
-                        name: "FK_Mascotas_Dueños_IdDueño",
-                        column: x => x.IdDueño,
-                        principalTable: "Dueños",
-                        principalColumn: "IdDueño",
+                        name: "FK_Mascotas_Owners_IdOwner",
+                        column: x => x.IdOwner,
+                        principalTable: "Owners",
+                        principalColumn: "IdOwner",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Atenciones",
+                columns: table => new
+                {
+                    IdAtencion = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FechaAtencion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TipoServicio = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Observaciones = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IdMascota = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Atenciones", x => x.IdAtencion);
+                    table.ForeignKey(
+                        name: "FK_Atenciones_Mascotas_IdMascota",
+                        column: x => x.IdMascota,
+                        principalTable: "Mascotas",
+                        principalColumn: "IdMascota",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Mascotas_IdDueño",
+                name: "IX_Atenciones_IdMascota",
+                table: "Atenciones",
+                column: "IdMascota");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Mascotas_IdOwner",
                 table: "Mascotas",
-                column: "IdDueño");
+                column: "IdOwner");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Atenciones");
+
+            migrationBuilder.DropTable(
                 name: "Mascotas");
 
             migrationBuilder.DropTable(
-                name: "Dueños");
+                name: "Owners");
         }
     }
 }

@@ -4,7 +4,7 @@
 @page "/registrar-dueno"
 @inject NavigationManager Navigation
 @inject RenaperService RenaperService
-@inject DueñoService DueñoService // --- NUEVO ---
+@inject OwnerService OwnerService // --- NUEVO ---
 
 <div class="form-container">
     <header class="form-header">
@@ -12,44 +12,44 @@
         <p>Complete los datos del propietario de la mascota</p>
     </header>
 
-    <EditForm Model="@dueño" OnValidSubmit="Submit" class="form">
+    <EditForm Model="@owner" OnValidSubmit="Submit" class="form">
         <DataAnnotationsValidator />
 
         <div class="form-group">
             <label for="nombre">Nombre Completo *</label>
-            <InputText id="nombre" @bind-Value="dueño.NombreCompleto" required placeholder="Ingrese el nombre completo" />
-            <ValidationMessage For="@(() => dueño.NombreCompleto)" />
+            <InputText id="nombre" @bind-Value="owner.NombreCompleto" required placeholder="Ingrese el nombre completo" />
+            <ValidationMessage For="@(() => owner.NombreCompleto)" />
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="dni">DNI *</label>
-                <InputText id="dni" @bind-Value="dueño.Dni" required placeholder="12345678" />
-                <ValidationMessage For="@(() => dueño.Dni)" />
+                <InputText id="dni" @bind-Value="owner.Dni" required placeholder="12345678" />
+                <ValidationMessage For="@(() => owner.Dni)" />
             </div>
 
             <div class="form-group">
                 <label for="fechaNacimiento">Fecha de Nacimiento *</label>
-                <InputDate id="fechaNacimiento" @bind-Value="dueño.FechaNacimiento" required />
-                <ValidationMessage For="@(() => dueño.FechaNacimiento)" />
+                <InputDate id="fechaNacimiento" @bind-Value="owner.FechaNacimiento" required />
+                <ValidationMessage For="@(() => owner.FechaNacimiento)" />
             </div>
         </div>
 
         <div class="form-group">
             <label for="domicilio">Domicilio *</label>
-            <InputText id="domicilio" @bind-Value="dueño.Domicilio" required placeholder="Calle, número, ciudad" />
-            <ValidationMessage For="@(() => dueño.Domicilio)" />
+            <InputText id="domicilio" @bind-Value="owner.Domicilio" required placeholder="Calle, número, ciudad" />
+            <ValidationMessage For="@(() => owner.Domicilio)" />
         </div>
 
         <div class="form-group">
             <label for="sexo">Sexo *</label>
-            <InputSelect id="sexo" @bind-Value="dueño.Sexo" required>
+            <InputSelect id="sexo" @bind-Value="owner.Sexo" required>
                 <option value="">Seleccione una opción</option>
                 <option value="M">Masculino</option>
                 <option value="F">Femenino</option>
                 <option value="O">Otro</option>
             </InputSelect>
-            <ValidationMessage For="@(() => dueño.Sexo)" />
+            <ValidationMessage For="@(() => owner.Sexo)" />
         </div>
 
         <div class="form-actions">
@@ -83,9 +83,9 @@
     private string? errorDni = null;
     private string? saveMessage = null; // Para feedback
 
-    private Dueño dueño = new Dueño();
+    private Owner owner = new Owner();
 
-    private async Task BuscarDueñoPorDni()
+    private async Task BuscarOwnerPorDni()
     {
         // El servicio Renaper sigue sin un endpoint real,
         // así que esta lógica se mantiene comentada como en el original.
@@ -98,7 +98,7 @@
         saveMessage = null;
         
         // --- LÓGICA DE GUARDADO ---
-        bool guardado = await DueñoService.SaveDueño(dueño);
+        bool guardado = await OwnerService.SaveOwner(owner);
 
         if (guardado)
         {

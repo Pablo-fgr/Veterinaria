@@ -1,0 +1,227 @@
+﻿@using Veterinaria.Data
+@using Veterinaria.Service
+
+@page "/cobrar-atencion"
+@inject NavigationManager Navigation
+@inject AtencionService AtencionService
+@inject MascotaService MascotaService
+
+<div class="form-container">
+    <header class="form-header">
+        <h1>Cobrar Atención</h1>
+        <p>Registre el servicio prestado y el monto a cobrar</p>
+    </header>
+
+    <EditForm Model="@atencion" OnValidSubmit="Submit" class="form">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="mascota">Mascota *</label>
+            <InputSelect id="mascota" @bind-Value="atencion.IdMascota" required @onchange="OnMascotaChanged">
+                <option value="0">Seleccione una mascota</option>
+                @foreach (var mascota in mascotas)
+                {
+                    <option value="@mascota.IdMascota">@mascota.Nombre (@mascota.Especie) - Dueño: @mascota.Owner.NombreCompleto</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => atencion.IdMascota)" />
+        </div>
+
+        @if (mascotaSeleccionada != null)
+        {
+            <div class="info-box">
+                <h3>Información del Dueño</h3>
+                <p><strong>Nombre:</strong> @mascotaSeleccionada.Owner.NombreCompleto</p>
+                <p><strong>DNI:</strong> @mascotaSeleccionada.Owner.Dni</p>
+                <p><strong>Domicilio:</strong> @mascotaSeleccionada.Owner.Domicilio</p>
+            </div>
+        }
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="fechaAtencion">Fecha de Atención *</label>
+                <InputDate id="fechaAtencion" @bind-Value="atencion.FechaAtencion" required />
+                <ValidationMessage For="@(() => atencion.FechaAtencion)" />
+            </div>
+
+            <div class="form-group">
+                <label for="tipoServicio">Tipo de Servicio *</label>
+                <InputSelect id="tipoServicio" @bind-Value="atencion.TipoServicio" required>
+                    <option value="">Seleccione un servicio</option>
+                    <option value="Consulta">Consulta</option>
+                    <option value="Vacunación">Vacunación</option>
+                    <option value="Desparasitación">Desparasitación</option>
+                    <option value="Cirugía">Cirugía</option>
+                    <option value="Análisis">Análisis</option>
+                    <option value="Radiografía">Radiografía</option>
+                    <option value="Ecografía">Ecografía</option>
+                    <option value="Peluquería">Peluquería</option>
+                    <option value="Baño">Baño</option>
+                    <option value="Otro">Otro</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => atencion.TipoServicio)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="monto">Monto ($) *</label>
+            <InputNumber id="monto" @bind-Value="atencion.Monto" required step="0.01" placeholder="0.00" />
+            <ValidationMessage For="@(() => atencion.Monto)" />
+        </div>
+
+        <div class="form-group">
+            <label for="observaciones">Observaciones</label>
+            <InputTextArea id="observaciones" @bind-Value="atencion.Observaciones" rows="4" placeholder="Detalles adicionales sobre el servicio prestado (opcional)" />
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+                Registrar y Cobrar
+            </button>
+        </div>
+
+        @if (saveMessage != null)
+        {
+            <p class="text-success">@saveMessage</p>
+        }
+        @if (errorMessage != null)
+        {
+            <p class="text-danger">@errorMessage</p>
+        }
+
+    </EditForm>
+</div>
+
+<style>
+    .btn-secondary {
+        color: #424242;
+        background: #f5f5f5;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 24px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            border-color: #bdbdbd;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .text-success {
+        color: #2e7d32;
+        font-weight: 500;
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .text-danger {
+        color: #d32f2f;
+        font-weight: 500;
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .info-box {
+        background: #e8f5e9;
+        border: 2px solid #43a047;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+        .info-box h3 {
+            color: #2e7d32;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .info-box p {
+            margin: 8px 0;
+            color: #424242;
+            font-size: 14px;
+        }
+
+            .info-box p strong {
+                color: #1b5e20;
+                font-weight: 600;
+            }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+</style>
+
+@code {
+    private Atencion atencion = new Atencion();
+    private List<Mascota> mascotas = new List<Mascota>();
+    private Mascota? mascotaSeleccionada = null;
+    private string? saveMessage = null;
+    private string? errorMessage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Cargar lista de mascotas con sus dueños
+        mascotas = await MascotaService.GetAllMascotas();
+    }
+
+    private async Task OnMascotaChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int idMascota) && idMascota > 0)
+        {
+            mascotaSeleccionada = await MascotaService.GetMascotaById(idMascota);
+        }
+        else
+        {
+            mascotaSeleccionada = null;
+        }
+    }
+
+    private async Task Submit()
+    {
+        saveMessage = null;
+        errorMessage = null;
+
+        // Validar que se seleccionó una mascota
+        if (atencion.IdMascota == 0)
+        {
+            errorMessage = "Debe seleccionar una mascota.";
+            return;
+        }
+
+        // Validar que el monto sea mayor a 0
+        if (atencion.Monto <= 0)
+        {
+            errorMessage = "El monto debe ser mayor a 0.";
+            return;
+        }
+
+        bool guardado = await AtencionService.SaveAtencion(atencion);
+
+        if (guardado)
+        {
+            saveMessage = $"¡Atención registrada con éxito! Monto: ${atencion.Monto:F2}";
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Error al registrar la atención.";
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

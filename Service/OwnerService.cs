@@ -4,38 +4,38 @@ using Veterinaria.DB;
 
 namespace Veterinaria.Service
 {
-    public class DueñoService
+    public class OwnerService
     {
         private readonly VeterinariaDBContext _context;
 
-        public DueñoService(VeterinariaDBContext context)
+        public OwnerService(VeterinariaDBContext context)
         {
             _context = context;
         }
 
-        public async Task<List<Dueño>> GetAllDueños()
+        public async Task<List<Owner>> GetAllOwners()
         {
-            return await _context.Dueños.ToListAsync();
+            return await _context.Owners.ToListAsync();
         }
 
-        public async Task<Dueño?> GetDueñoById(int id)
+        public async Task<Owner?> GetOwnerById(int id)
         {
-            return await _context.Dueños.FindAsync(id);
+            return await _context.Owners.FindAsync(id);
         }
 
-        public async Task<bool> SaveDueño(Dueño dueño)
+        public async Task<bool> SaveOwner(Owner dueño)
         {
             try
             {
-                if (dueño.IdDueño == 0)
+                if (dueño.IdOwner == 0)
                 {
                     // Es un dueño nuevo
-                    await _context.Dueños.AddAsync(dueño);
+                    await _context.Owners.AddAsync(dueño);
                 }
                 else
                 {
                     // Es una edición
-                    _context.Dueños.Update(dueño);
+                    _context.Owners.Update(dueño);
                 }
                 await _context.SaveChangesAsync();
                 return true;

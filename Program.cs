@@ -6,11 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --- INICIO: Reemplaza a ConfigureServices de Startup.cs ---
 
-// 1. Añadir servicios al contenedor.
+// 1. A?adir servicios al contenedor.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-// 2. Configurar el DbContext con la cadena de conexión
+// 2. Configurar el DbContext con la cadena de conexi?n
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<VeterinariaDBContext>(options =>
     options.UseSqlServer(connectionString));
@@ -18,7 +18,9 @@ builder.Services.AddDbContext<VeterinariaDBContext>(options =>
 // 3. Registrar tus servicios personalizados
 builder.Services.AddHttpClient(); // Para RenaperService
 builder.Services.AddScoped<RenaperService>();
-builder.Services.AddScoped<DueñoService>();
+builder.Services.AddScoped < OwnerService > ();
+builder.Services.AddScoped<MascotaService>();
+builder.Services.AddScoped<AtencionService>();
 
 
 // --- FIN: Reemplaza a ConfigureServices ---

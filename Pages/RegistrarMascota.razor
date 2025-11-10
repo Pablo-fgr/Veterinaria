@@ -1,0 +1,161 @@
+﻿@using Veterinaria.Data
+@using Veterinaria.Service
+
+@page "/registrar-mascota"
+@inject NavigationManager Navigation
+@inject MascotaService MascotaService
+@inject OwnerService OwnerService
+
+<div class="form-container">
+    <header class="form-header">
+        <h1>Registrar Mascota</h1>
+        <p>Complete los datos de la mascota</p>
+    </header>
+
+    <EditForm Model="@mascota" OnValidSubmit="Submit" class="form">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="nombre">Nombre de la Mascota *</label>
+            <InputText id="nombre" @bind-Value="mascota.Nombre" required placeholder="Ingrese el nombre de la mascota" />
+            <ValidationMessage For="@(() => mascota.Nombre)" />
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="especie">Especie *</label>
+                <InputSelect id="especie" @bind-Value="mascota.Especie" required>
+                    <option value="">Seleccione una especie</option>
+                    <option value="Perro">Perro</option>
+                    <option value="Gato">Gato</option>
+                    <option value="Conejo">Conejo</option>
+                    <option value="Ave">Ave</option>
+                    <option value="Reptil">Reptil</option>
+                    <option value="Otro">Otro</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => mascota.Especie)" />
+            </div>
+
+            <div class="form-group">
+                <label for="raza">Raza</label>
+                <InputText id="raza" @bind-Value="mascota.Raza" placeholder="Opcional" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <InputDate id="fechaNacimiento" @bind-Value="mascota.FechaNacimiento" />
+        </div>
+
+        <div class="form-group">
+            <label for="owner">Dueño *</label>
+            <InputSelect id="owner" @bind-Value="mascota.IdOwner" required>
+                <option value="0">Seleccione un dueño</option>
+                @foreach (var owner in owners)
+                {
+                    <option value="@owner.IdOwner">@owner.NombreCompleto - DNI: @owner.Dni</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => mascota.IdOwner)" />
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+                Guardar Mascota
+            </button>
+        </div>
+
+        @if (saveMessage != null)
+        {
+            <p class="text-success">@saveMessage</p>
+        }
+        @if (errorMessage != null)
+        {
+            <p class="text-danger">@errorMessage</p>
+        }
+
+    </EditForm>
+</div>
+
+<style>
+    .btn-secondary {
+        color: #424242;
+        background: #f5f5f5;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 24px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            border-color: #bdbdbd;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .text-success {
+        color: #2e7d32;
+        font-weight: 500;
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .text-danger {
+        color: #d32f2f;
+        font-weight: 500;
+        margin-top: 15px;
+        text-align: center;
+    }
+</style>
+
+@code {
+    private Mascota mascota = new Mascota();
+    private List<Owner> owners = new List<Owner>();
+    private string? saveMessage = null;
+    private string? errorMessage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Cargar lista de dueños
+        owners = await OwnerService.GetAllOwners();
+    }
+
+    private async Task Submit()
+    {
+        saveMessage = null;
+        errorMessage = null;
+
+        // Validar que se seleccionó un dueño
+        if (mascota.IdOwner == 0)
+        {
+            errorMessage = "Debe seleccionar un dueño.";
+            return;
+        }
+
+        bool guardado = await MascotaService.SaveMascota(mascota);
+
+        if (guardado)
+        {
+            saveMessage = "¡Mascota guardada con éxito!";
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Error al guardar la mascota.";
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

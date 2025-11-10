@@ -23,12 +23,12 @@ namespace Veterinaria.Data
         public DateTime? FechaNacimiento { get; set; }
 
         // --- RELACIÓN ---
-        // Clave foránea para el Dueño
+        // Clave foránea para el Owner
         [Required]
-        public int IdDueño { get; set; }
+        public int IdOwner { get; set; }
 
         // Propiedad de navegación
-        [ForeignKey("IdDueño")]
-        public virtual Dueño Dueño { get; set; } = null!;
+        [ForeignKey("IdOwner")]
+        public virtual Owner Owner { get; set; } = null!;
     }
 }

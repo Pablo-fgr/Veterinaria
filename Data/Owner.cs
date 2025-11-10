@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Veterinaria.Data
 {
-    public class Dueño
+    public class Owner
     {
         [Key] // Es buena práctica definir la Key
-        public int IdDueño { get; set; }
+        public int IdOwner { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
         public string NombreCompleto { get; set; } = string.Empty;
