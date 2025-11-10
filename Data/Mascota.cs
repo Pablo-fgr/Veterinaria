@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +22,13 @@ namespace Veterinaria.Data
 
         public DateTime? FechaNacimiento { get; set; }
 
-        // --- RELACI�N ---
-        // Clave for�nea para el Due�o
+        // --- RELACIÓN ---
+        // Clave foránea para el Dueño
         [Required]
-        public int IdDue�o { get; set; }
+        public int IdDueño { get; set; }
 
-        // Propiedad de navegaci�n
-        [ForeignKey("IdDue�o")]
-        public virtual Due�o Due�o { get; set; } = null!;
+        // Propiedad de navegación
+        [ForeignKey("IdDueño")]
+        public virtual Dueño Dueño { get; set; } = null!;
     }
 }
