@@ -4,6 +4,7 @@
 @page "/registrar-dueno"
 @inject NavigationManager Navigation
 @inject RenaperService RenaperService
+@inject DueñoService DueñoService // --- NUEVO ---
 
 <div class="form-container">
     <header class="form-header">
@@ -23,7 +24,7 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="dni">DNI *</label>
-                <InputNumber id="dni" @bind-Value="dueño.Dni" @onchange="BuscarDueñoPorDni" required placeholder="123456789" />
+                <InputText id="dni" @bind-Value="dueño.Dni" required placeholder="12345678" />
                 <ValidationMessage For="@(() => dueño.Dni)" />
             </div>
 
@@ -62,70 +63,58 @@
 
         @if (buscando)
         {
-        <p class="text-info">Buscando datos...</p>}
-            @if (errorDni != null)
-            {
-        <p class="text-danger">@errorDni</p>}
+            <p class="text-info">Buscando datos...</p>
+        }
+        @if (errorDni != null)
+        {
+            <p class="text-danger">@errorDni</p>
+        }
+        @if (saveMessage != null)
+        {
+            <p class="text-success">@saveMessage</p>
+        }
 
     </EditForm>
 </div>
 
 
 @code {
-
     private bool buscando = false;
     private string? errorDni = null;
+    private string? saveMessage = null; // Para feedback
 
     private Dueño dueño = new Dueño();
 
     private async Task BuscarDueñoPorDni()
     {
-
-        if (dueño.Dni <= 0)
-        {
-            errorDni = null;
-            return;
-        }
-
-        buscando = true;
-        errorDni = null;
-
-        //poner el endpoint
-        //var personaEncontrada = await RenaperService.GetPersonaByDni(dueño.Dni);
-
-        //if (personaEncontrada != null)
-        //{
-
-        //    dueño.NombreCompleto = personaEncontrada.NombreCompleto;
-        //    dueño.Domicilio = personaEncontrada.Domicilio;
-        //    dueño.FechaNacimiento = personaEncontrada.FechaNacimiento;
-        //    dueño.Sexo = personaEncontrada.Sexo;
-
-        //    StateHasChanged();
-        //}
-        //else
-        //{
-        //    dueño.NombreCompleto = string.Empty;
-        //    dueño.Domicilio = string.Empty;
-        //    dueño.FechaNacimiento = null;
-        //    dueño.Sexo = string.Empty;
-
-        //    errorDni = $"No se encontraron datos para el DNI: {dueño.Dni}. Por favor, complete manualmente.";
-        //}
-
+        // El servicio Renaper sigue sin un endpoint real,
+        // así que esta lógica se mantiene comentada como en el original.
+        //
         buscando = false;
     }
 
-    private void Submit()
+    private async Task Submit()
     {
-        //Console.WriteLine("Datos válidos. Listo para enviar a la API.");
-        //Navigation.NavigateTo("/");
+        saveMessage = null;
+        
+        // --- LÓGICA DE GUARDADO ---
+        bool guardado = await DueñoService.SaveDueño(dueño);
+
+        if (guardado)
+        {
+            saveMessage = "¡Dueño guardado con éxito!";
+            // Redirigir después de 2 segundos
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            saveMessage = "Error al guardar el dueño.";
+        }
     }
 
     private void Cancel()
     {
         Navigation.NavigateTo("/");
     }
-
-
- }
+}
